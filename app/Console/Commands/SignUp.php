@@ -3,10 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Exceptions\PasswordInvalidException;
+use Exception;
 
 class SignUp extends Command
 {
@@ -40,36 +42,19 @@ class SignUp extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(UserService $userService)
     {
         $account = $this->argument('account');
         $password = $this->argument('password');
         $username = $this->argument('username');
-        $validator = Validator::make(['password' => $password], [
-            'password' => 'regex:' . SignUp::PASSWORD_REGEX
-        ]);
-
-        if ($validator->fails()) {
-            $this->error("密碼需要6位數以上，並且至少包含大寫字母、小寫字母、數字、符號各一");
-            return 1;
+        try{
+            if($userService->signUp($account, $password, $username)){
+                $this->line("註冊成功");
+            }
+        } catch (Exception $e){
+            $this->error($e->getMessage());
         }
-        $user = User::where('account', $account)->first();
-        // $user = DB::table('users')->where('account', $account)->first();
-        if($user !== null){
-            $this->error("帳號重複註冊");
-            return 1;
-        }
-        User::create([
-            'account' => $account,
-            'password' => Hash::make($password),
-            'name' => $username
-        ]);
-        // DB::table('users')->insert([
-        //         'account' => $account,
-        //         'password' => Hash::make($password),
-        //         'name' => $username
-        //     ]);
-        $this->line("帳號註冊成功");
+        
         return 0;
     }
 }
