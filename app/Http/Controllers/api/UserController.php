@@ -65,7 +65,16 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::find($id);
+        if($user->update($request->all())){
+            return response()->json([
+                'success' => 'true'
+            ]);
+        }
+        return response()->json([
+            'success' => 'false'
+        ]);
+        
     }
 
     /**
@@ -76,6 +85,13 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        if(User::find($id)->delete()){
+            return response()->json([
+                'success' => 'true'
+            ]);
+        }
+        return response()->json([
+            'success' => 'false'
+        ]);
     }
 }

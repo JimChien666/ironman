@@ -2,12 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use App\Exceptions\PasswordInvalidException;
 use Exception;
 
 class SignUp extends Command
