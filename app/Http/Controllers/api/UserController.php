@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
-use Exception;
+use PDOException;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -37,7 +37,12 @@ class UserController extends Controller
                     'success' => 'true'
                 ]);
             }
-        } catch (Exception $e){
+        } catch (PDOException $e){
+            return response()->json([
+                'success' => 'false',
+                'error'=> 'DB error'
+            ]);
+        }catch (\Exception $e){
             return response()->json([
                 'success' => 'false',
                 'error'=> $e->getMessage()
@@ -66,7 +71,8 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::find($id);
-        if($user->update($request->all())){
+        if($user!==null){
+            $user->update($request->all());
             return response()->json([
                 'success' => 'true'
             ]);
@@ -85,7 +91,8 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        if(User::find($id)->delete()){
+        $user = User::find($id);
+        if($user!==null){
             return response()->json([
                 'success' => 'true'
             ]);
