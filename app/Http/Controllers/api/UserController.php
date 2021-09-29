@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Crypt;
 
 class UserController extends Controller
 {
@@ -58,7 +59,9 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        return response()->json(User::select('id', 'name', 'account')->where('id', $id)->first());
+        $user = User::select('id', 'name', 'account')->where('id', $id)->first();
+        $user->name = Crypt::decryptString($user->name);
+        return response()->json($user);
     }
 
     /**

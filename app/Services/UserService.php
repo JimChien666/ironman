@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 use App\Exceptions\AccountExistException;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\PasswordInvalidException;
@@ -31,7 +32,7 @@ class UserService
         User::create([
             'account' => $account,
             'password' => Hash::make($password),
-            'name' => $username
+            'name' => Crypt::encryptString($username),
         ]);
         return true;
     }

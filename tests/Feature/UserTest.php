@@ -2,14 +2,27 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\api\UserController;
+use Mockery;
+use PDOException;
 use Tests\TestCase;
 use App\Models\User;
+use Mockery\MockInterface;
+use App\Services\UserService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
+use function PHPUnit\Framework\assertTrue;
 
 class UserTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test1()
+    {
+        new UserController();
+        assertTrue(true);
+    }
 
     public function invalidPasswordProvider()
     {
@@ -144,6 +157,35 @@ class UserTest extends TestCase
         ->assertJson([
             'success' => 'false',
             'error'=> '密碼需要6位數以上，並且至少包含大寫字母、小寫字母、數字、符號各一'
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function storeGetPDOException()
+    {
+        //arrange
+        $this->mock(UserService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('signUp')
+                ->andThrow(new PDOException());
+        });
+        $id = 10;
+        $account = "JimChien";
+        $username = "Jim";
+        $password = "123Acb_";
+
+        // act&assert
+        $this->postJson("/api/user", [
+            'id'=>$id,
+            'account'=>$account,
+            'password'=>$password,
+            'username'=>$username
+        ])
+        ->assertStatus(200)
+        ->assertJson([
+            'success' => 'false',
+            'error'=> 'DB error'
         ]);
     }
 }
