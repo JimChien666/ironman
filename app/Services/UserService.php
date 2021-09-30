@@ -29,6 +29,7 @@ class UserService
         if($user !== null){
             throw new AccountExistException();
         }
+
         User::create([
             'account' => $account,
             'password' => Hash::make($password),
